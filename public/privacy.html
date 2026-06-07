@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Datenschutz — evaltool</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <header class="app">
+    <div class="wrap">
+      <a class="brand" href="/">evaltool <small>Teaching Analysis Poll</small></a>
+      <nav>
+        <a href="/host">Für Lehrende</a>
+        <a href="/privacy">Datenschutz</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="card">
+      <h1>Datenschutzhinweis</h1>
+      <p class="muted">Stand: Dieses Werkzeug ist auf Anonymität und Datensparsamkeit ausgelegt.</p>
+
+      <h2>Welche Daten werden erhoben?</h2>
+      <p>
+        Ausschließlich die <strong>anonymen Antworten</strong> der Studierenden auf die
+        angezeigten Fragen (Likert-Skalen und Freitext). Es werden <strong>keine</strong>
+        personenbezogenen Daten erhoben: keine Namen, keine Matrikelnummern, keine
+        Anmeldung, keine Cookies, keine IP-Adressen-Speicherung, kein Tracking.
+      </p>
+
+      <h2>Wo werden die Antworten gespeichert?</h2>
+      <p>
+        Die Antworten werden <strong>nicht auf dem Server gespeichert</strong>. Während der
+        Befragung leitet der Server jede Antwort unmittelbar an den Browser der Lehrperson
+        weiter und behält selbst keine Kopie. Im Browser der Lehrperson werden die Antworten
+        lokal (im <em>localStorage</em>) gesammelt und dort ausgewertet. Die Lehrperson kann
+        die Daten als CSV exportieren und die lokale Sammlung jederzeit löschen.
+      </p>
+
+      <h2>KI-gestützte Auswertung</h2>
+      <p>
+        Zur Verdichtung der Freitextantworten können diese – ausgelöst durch die Lehrperson –
+        an eine von der Hochschule bereitgestellte, OpenAI-kompatible Sprachmodell-Instanz
+        gesendet werden. Übertragen werden dabei nur die ohnehin anonymen Freitexte. Ist keine
+        solche Instanz konfiguriert oder erreichbar, unterbleibt die Verarbeitung und es
+        erscheint der Hinweis „LLM not available at present“.
+      </p>
+
+      <h2>Synchrone, flüchtige Sitzungen</h2>
+      <p>
+        Eine Befragung ist nur aktiv, solange das Dashboard der Lehrperson geöffnet und
+        verbunden ist. Der Server hält je Sitzung lediglich die Fragebogen-Konfiguration und
+        eine reine Teilnahme-<em>Zählung</em> im Arbeitsspeicher; beides wird beim Beenden der
+        Sitzung bzw. spätestens nach Inaktivität verworfen.
+      </p>
+
+      <p><a class="btn secondary" href="/">Zurück</a></p>
+    </div>
+  </main>
+
+  <footer class="app">evaltool · Teaching Analysis Poll</footer>
+</body>
+</html>

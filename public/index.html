@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>evaltool — Lehrveranstaltungsevaluation (TAP)</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <header class="app">
+    <div class="wrap">
+      <a class="brand" href="/">evaltool <small>Teaching Analysis Poll</small></a>
+      <nav>
+        <a href="/host">Für Lehrende</a>
+        <a href="/privacy">Datenschutz</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <div class="card">
+      <h1>Anonyme Lehrveranstaltungsevaluation</h1>
+      <p class="muted">
+        Ein browserbasiertes Werkzeug für eine Zwischenevaluation nach der Methode
+        des <strong>Teaching Analysis Poll (TAP)</strong>. Studierende geben
+        anonymes Feedback; die Auswertung – inklusive einer KI-gestützten
+        Verdichtung der Freitextantworten – läuft ausschließlich im Browser der
+        Lehrperson.
+      </p>
+
+      <h2>So funktioniert es</h2>
+      <ol>
+        <li>Die Lehrperson legt eine Evaluation an (Name der Veranstaltung + Semester).</li>
+        <li>Studierende öffnen den Link bzw. scannen den QR-Code und antworten anonym.</li>
+        <li>Die Antworten laufen <strong>direkt</strong> in den Browser der Lehrperson – der Server speichert nichts.</li>
+        <li>Zum Abschluss: Diagramme der Likert-Skalen, KI-Zusammenfassung der Freitexte, drei TAP-Abschnitte und vier überarbeitbare Schlussfolgerungen als Bericht.</li>
+      </ol>
+
+      <div class="btn-row">
+        <a class="btn" href="/host">Evaluation starten</a>
+        <a class="btn secondary" href="/privacy">Datenschutzhinweis</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Datenschutz im Kern</h2>
+      <ul>
+        <li><strong>Anonym:</strong> keine Anmeldung, keine personenbezogenen Daten, keine Cookies.</li>
+        <li><strong>Kein Server-Speicher:</strong> Antworten werden live an den Browser der Lehrperson weitergeleitet und nur dort (im <em>localStorage</em>) gehalten.</li>
+        <li><strong>Synchron:</strong> die Befragung ist nur aktiv, solange das Dashboard der Lehrperson geöffnet ist.</li>
+      </ul>
+    </div>
+  </main>
+
+  <footer class="app">
+    evaltool · Teaching Analysis Poll · <a href="/privacy">Datenschutz</a>
+  </footer>
+</body>
+</html>
