@@ -1,0 +1,97 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Standard-Fragebogen für evaltool (Teaching Analysis Poll)
+#
+# Format:
+#   id:          eindeutige Kennung des Fragebogens (sonst Dateiname)
+#   title:       Anzeigename
+#   description: optionale Kurzbeschreibung
+#   questions:   Liste von Fragen, jede mit eindeutiger "id" und "text"
+#     - type: likert    -> "labels" (Liste, min. 2) ODER "scale" (Ganzzahl >= 2)
+#                          Der Wert einer Antwort ist ihr 1-basierter Index.
+#     - type: freeform  -> Freitext-Antwort
+#
+# Die drei TAP-Fragen werden automatisch nach diesen Fragen angehängt und
+# müssen hier NICHT aufgeführt werden.
+# Eigene Fragebögen: einfach eine weitere *.yaml in diesem Ordner ablegen.
+# ─────────────────────────────────────────────────────────────────────────────
+
+id: default
+title: Standard-Fragebogen
+description: Allgemeine Lehrveranstaltungsbewertung mit anschließenden TAP-Fragen.
+
+questions:
+  # ── Likert-Items (5-stufige Zustimmung; höher = besser) ─────────────────────
+  - id: inhalte_relevanz
+    type: likert
+    text: Die Inhalte der Lehrveranstaltung sind für mich relevant und nachvollziehbar.
+    labels:
+      - trifft gar nicht zu
+      - trifft eher nicht zu
+      - teils/teils
+      - trifft eher zu
+      - trifft voll zu
+
+  - id: struktur
+    type: likert
+    text: Die Lehrveranstaltung ist klar und nachvollziehbar strukturiert.
+    labels:
+      - trifft gar nicht zu
+      - trifft eher nicht zu
+      - teils/teils
+      - trifft eher zu
+      - trifft voll zu
+
+  - id: darbietung
+    type: likert
+    text: Die Inhalte werden verständlich und ansprechend dargeboten.
+    labels:
+      - trifft gar nicht zu
+      - trifft eher nicht zu
+      - teils/teils
+      - trifft eher zu
+      - trifft voll zu
+
+  - id: tempo
+    type: likert
+    text: Das Tempo der Lehrveranstaltung ist für mich angemessen.
+    labels:
+      - trifft gar nicht zu
+      - trifft eher nicht zu
+      - teils/teils
+      - trifft eher zu
+      - trifft voll zu
+
+  - id: workload
+    type: likert
+    text: Der Arbeitsaufwand für diese Lehrveranstaltung ist angemessen.
+    labels:
+      - trifft gar nicht zu
+      - trifft eher nicht zu
+      - teils/teils
+      - trifft eher zu
+      - trifft voll zu
+
+  - id: material
+    type: likert
+    text: Die bereitgestellten Materialien unterstützen mein Lernen.
+    labels:
+      - trifft gar nicht zu
+      - trifft eher nicht zu
+      - teils/teils
+      - trifft eher zu
+      - trifft voll zu
+
+  - id: gesamt
+    type: likert
+    text: Insgesamt bin ich mit der Lehrveranstaltung zufrieden.
+    labels:
+      - trifft gar nicht zu
+      - trifft eher nicht zu
+      - teils/teils
+      - trifft eher zu
+      - trifft voll zu
+
+  # ── Allgemeiner Freitext (vor den TAP-Fragen) ───────────────────────────────
+  - id: kommentar
+    type: freeform
+    text: Möchten Sie zur Lehrveranstaltung insgesamt noch etwas anmerken? (optional)
