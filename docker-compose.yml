@@ -1,0 +1,16 @@
+services:
+  evaltool:
+    build: .
+    image: evaltool:latest
+    restart: unless-stopped
+    # Loads LLM_BASE_URL / LLM_API_KEY / LLM_MODEL / HOST_KEY / PORT from .env
+    env_file:
+      - .env
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      - PORT=3000
+    # Mount config read-only so question sets and prompts can be edited on the
+    # host (kiz1.in.ohmportal.de) without rebuilding the image.
+    volumes:
+      - ./config:/app/config:ro

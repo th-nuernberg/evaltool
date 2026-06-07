@@ -1,0 +1,22 @@
+{
+  "name": "evaltool",
+  "version": "1.0.0",
+  "description": "Browser-only anonymous teaching evaluation based on the Teaching Analysis Poll (TAP)",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "js-yaml": "^4.1.0",
+    "qrcode": "^1.5.4",
+    "socket.io": "^4.7.5"
+  },
+  "license": "MIT"
+}
