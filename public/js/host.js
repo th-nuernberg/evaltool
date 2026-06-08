@@ -8,6 +8,8 @@
   const $ = (id) => document.getElementById(id);
   const show = (el) => el && el.classList.remove('hidden');
   const hide = (el) => el && el.classList.add('hidden');
+  // URL prefix when hosted behind a reverse proxy (injected by the server).
+  const BASE = window.BASE_PATH || '';
 
   const HOSTKEY_LS = 'evaltool:hostkey';
   let meta = null;
@@ -42,7 +44,7 @@
   // ── Init ────────────────────────────────────────────────────────────────────
   async function init() {
     try {
-      meta = await fetch('/api/meta').then((r) => r.json());
+      meta = await fetch(BASE + '/api/meta').then((r) => r.json());
     } catch (_) {
       meta = { defaultTerm: '', questionSets: [], hostKeyRequired: false, llmConfigured: false };
     }
@@ -77,7 +79,7 @@
 
   // ── Socket (live relay) ─────────────────────────────────────────────────────
   function connectSocket() {
-    socket = io();
+    socket = io({ path: BASE + '/socket.io' });
     socket.on('connect', maybeAttach);
     socket.on('host-attached', ({ count } = {}) => {
       setCollectStatus(`Verbunden · die Befragung ist aktiv${count ? ` · ${count} am Server gezählt` : ''}.`, 'ok');
@@ -113,7 +115,7 @@
 
     $('create-btn').disabled = true;
     try {
-      const res = await fetch('/api/session', {
+      const res = await fetch(BASE + '/api/session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title, term, questionSetId, hostKey }),
@@ -159,13 +161,13 @@
   async function renderCollect() {
     $('c-title').textContent = current.title;
     $('c-term').textContent = current.term;
-    const link = `${window.location.origin}/eval/${current.sessionId}`;
+    const link = `${window.location.origin}${BASE}/eval/${current.sessionId}`;
     $('c-link').value = link;
     $('open-eval').href = link;
     updateCount();
     setCollectStatus('Verbinde …');
     try {
-      const { dataUrl } = await fetch('/api/qr?data=' + encodeURIComponent(link)).then((r) => r.json());
+      const { dataUrl } = await fetch(BASE + '/api/qr?data=' + encodeURIComponent(link)).then((r) => r.json());
       $('c-qr').innerHTML = `<img alt="QR-Code zum Teilnahme-Link" src="${dataUrl}" />`;
     } catch (_) { $('c-qr').textContent = ''; }
   }
@@ -217,7 +219,7 @@
   }
   async function callLLM(promptKey, input, system) {
     try {
-      const res = await fetch(`/api/llm/${promptKey}`, {
+      const res = await fetch(`${BASE}/api/llm/${promptKey}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ input, hostKey, system }),

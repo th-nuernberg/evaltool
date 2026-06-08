@@ -38,6 +38,7 @@ Copy `.env.example` to `.env`:
 | Variable | Purpose |
 |---|---|
 | `PORT` | HTTP port (default `3000`). |
+| `BASE_PATH` | URL prefix for hosting behind a reverse proxy (default `evaltool` → served under `/evaltool`). Set empty (`BASE_PATH=`) to serve from the root. The proxy must forward the prefix, not strip it. |
 | `HOST_KEY` | Optional. If set, creating a poll (and calling the LLM proxy) requires this key — anti-abuse for a public instance. Leave empty for open dev. |
 | `LLM_BASE_URL` | OpenAI-compatible root. The app POSTs to `${LLM_BASE_URL}/chat/completions`. Preconfigured for Docker to `https://kiz1.in.ohmportal.de/llmproxy/v1`. |
 | `LLM_MODEL` | Model id served by the proxy. Defaults to `mistralai/Mistral-Medium-3.5-128B`; override to use another. |
@@ -79,9 +80,30 @@ make up                                      # docker compose up -d
 ```
 
 The LLM endpoint (`https://kiz1.in.ohmportal.de/llmproxy/v1`) is preconfigured in
-`docker-compose.yml`; the bearer token is read at runtime from the bind-mounted
-`.llmcredentials` file and never baked into the image. `config/` is mounted
-read-only, so question sets and prompts can be edited on the host without a rebuild.
+`docker-compose.yml`; the bearer token is read at runtime from the
+`.llmcredentials` Docker secret and never baked into the image. `config/` is
+mounted read-only, so question sets and prompts can be edited on the host without
+a rebuild.
+
+### Reverse proxy
+
+The app serves everything under `BASE_PATH` (default `/evaltool`), so the final
+URL is `https://kiz1.in.ohmportal.de/evaltool`. The proxy must **forward the
+prefix unchanged** (don't strip it) and upgrade the Socket.io WebSocket. nginx:
+
+```nginx
+location /evaltool/ {
+    proxy_pass http://evaltool:3000;   # no trailing slash → prefix passed through
+    proxy_http_version 1.1;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header Upgrade $http_upgrade;   # Socket.io
+    proxy_set_header Connection "upgrade";
+}
+```
+
+To host at a different sub-path, change `BASE_PATH` and the `location` block to
+match. To serve from the domain root, set `BASE_PATH=`.
 
 ## Project layout
 

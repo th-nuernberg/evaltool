@@ -7,6 +7,8 @@
 (function () {
   const parts = window.location.pathname.split('/');
   const sessionId = decodeURIComponent(parts[parts.length - 1] || '');
+  // URL prefix when hosted behind a reverse proxy (injected by the server).
+  const BASE = window.BASE_PATH || '';
 
   const els = {
     state: document.getElementById('state'),
@@ -115,7 +117,7 @@
   }
 
   // ── Socket wiring ───────────────────────────────────────────────────────────
-  const socket = io();
+  const socket = io({ path: BASE + '/socket.io' });
 
   socket.on('connect', () => socket.emit('student-join', { sessionId }));
 

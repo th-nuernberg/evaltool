@@ -3,6 +3,7 @@
 require('dotenv').config();
 
 const path = require('path');
+const fs = require('fs');
 const crypto = require('crypto');
 const http = require('http');
 const express = require('express');
@@ -18,6 +19,16 @@ const PORT = Number(process.env.PORT) || 3000;
 const HOST_KEY = (process.env.HOST_KEY || '').trim();
 const PUBLIC_DIR = path.join(__dirname, 'public');
 
+// URL prefix for hosting behind a reverse proxy (e.g. https://host/evaltool).
+// Configurable via BASE_PATH; defaults to "evaltool". Normalised to "" (root)
+// or "/evaltool" (leading slash, no trailing slash). The reverse proxy must
+// forward the prefix to the app — it is NOT stripped.
+function normalizeBasePath(raw) {
+  const p = String(raw == null ? 'evaltool' : raw).trim().replace(/^\/+|\/+$/g, '');
+  return p ? `/${p}` : '';
+}
+const BASE_PATH = normalizeBasePath(process.env.BASE_PATH);
+
 let QUESTION_SETS;
 let PROMPTS;
 try {
@@ -31,6 +42,7 @@ console.log(
   `[evaltool] Loaded ${QUESTION_SETS.size} question set(s): ${[...QUESTION_SETS.keys()].join(', ')}`
 );
 console.log(`[evaltool] LLM ${llm.isConfigured() ? 'configured' : 'NOT configured (fallback active)'}`);
+console.log(`[evaltool] base path: ${BASE_PATH || '/'} (set BASE_PATH to change)`);
 
 // ── Ephemeral, in-memory session registry ────────────────────────────────────
 // A session holds the poll CONFIG and a live participant COUNT only. Response
@@ -85,18 +97,40 @@ function cleanAnswers(answers, questions) {
   return out;
 }
 
+// ── HTML pages: render once with the base path baked in ───────────────────────
+// Root-absolute asset/link URLs ("/css", "/js", "/socket.io", "/host", …) get the
+// prefix; the base path is exposed to client scripts via window.BASE_PATH.
+const PAGES = {};
+for (const file of ['index.html', 'host.html', 'privacy.html', 'eval.html']) {
+  let html = fs.readFileSync(path.join(PUBLIC_DIR, file), 'utf8');
+  if (BASE_PATH) html = html.replace(/(href|src)="\//g, `$1="${BASE_PATH}/`);
+  html = html.replace(
+    '</head>',
+    `  <script>window.BASE_PATH=${JSON.stringify(BASE_PATH)};</script>\n</head>`
+  );
+  PAGES[file] = html;
+}
+function sendPage(res, file) {
+  res.type('html').send(PAGES[file]);
+}
+
 // ── Express app ───────────────────────────────────────────────────────────────
 const app = express();
+app.set('trust proxy', true); // honour X-Forwarded-* from the reverse proxy
 app.use(express.json({ limit: '256kb' }));
 
-// Clean page routes (assets are served by express.static below).
-app.get('/', (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'index.html')));
-app.get('/host', (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'host.html')));
-app.get('/privacy', (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'privacy.html')));
-app.get('/eval/:sessionId', (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'eval.html')));
+// All routes live on a router mounted under BASE_PATH, so the whole app can sit
+// behind a reverse-proxy sub-path (e.g. https://host/evaltool).
+const router = express.Router();
+
+// Clean page routes (HTML rendered with the prefix; other assets via static below).
+router.get('/', (req, res) => sendPage(res, 'index.html'));
+router.get('/host', (req, res) => sendPage(res, 'host.html'));
+router.get('/privacy', (req, res) => sendPage(res, 'privacy.html'));
+router.get('/eval/:sessionId', (req, res) => sendPage(res, 'eval.html'));
 
 // Metadata for the host dashboard: default term, available question sets, flags.
-app.get('/api/meta', (req, res) => {
+router.get('/api/meta', (req, res) => {
   res.json({
     today: new Date().toISOString().slice(0, 10),
     defaultTerm: computeTerm(new Date()),
@@ -115,7 +149,7 @@ app.get('/api/meta', (req, res) => {
 });
 
 // Create a poll session. Guarded by HOST_KEY when configured (R1 anti-abuse).
-app.post('/api/session', (req, res) => {
+router.post('/api/session', (req, res) => {
   const { title, term, questionSetId, hostKey } = req.body || {};
   if (!hostKeyOk(hostKey)) {
     return res.status(403).json({ error: 'Ungültiger oder fehlender Zugangsschlüssel.' });
@@ -159,7 +193,7 @@ app.post('/api/session', (req, res) => {
 });
 
 // Render a QR code (PNG data URL) for an arbitrary string (the student link).
-app.get('/api/qr', async (req, res) => {
+router.get('/api/qr', async (req, res) => {
   const data = req.query.data;
   if (!data || typeof data !== 'string') {
     return res.status(400).json({ error: 'missing data' });
@@ -173,7 +207,7 @@ app.get('/api/qr', async (req, res) => {
 });
 
 // LLM proxy: inject the server-side system prompt for :promptKey (R3/R6).
-app.post('/api/llm/:promptKey', async (req, res) => {
+router.post('/api/llm/:promptKey', async (req, res) => {
   const { input, hostKey, system } = req.body || {};
   if (!hostKeyOk(hostKey)) {
     return res.status(403).json({ error: 'Ungültiger oder fehlender Zugangsschlüssel.' });
@@ -192,12 +226,20 @@ app.post('/api/llm/:promptKey', async (req, res) => {
   res.json(result);
 });
 
-app.use(express.static(PUBLIC_DIR));
-app.use((req, res) => res.status(404).send('Not found'));
+router.use(express.static(PUBLIC_DIR));
+router.use((req, res) => res.status(404).send('Not found'));
+
+// Mount everything under the prefix. A bare "/" redirects into the app so the
+// root still works when reached directly (not via the proxy sub-path).
+app.use(BASE_PATH || '/', router);
+if (BASE_PATH) {
+  app.get('/', (req, res) => res.redirect(`${BASE_PATH}/`));
+  app.use((req, res) => res.status(404).send('Not found'));
+}
 
 // ── Socket.io: synchronous live relay (no response content retained) ──────────
 const server = http.createServer(app);
-const io = new Server(server);
+const io = new Server(server, { path: `${BASE_PATH}/socket.io` });
 
 io.on('connection', (socket) => {
   let role = null; // 'host' | 'student'
@@ -314,7 +356,7 @@ if (require.main === module) {
     process.exit(1);
   });
   server.listen(PORT, () => {
-    console.log(`[evaltool] listening on http://localhost:${PORT}`);
+    console.log(`[evaltool] listening on http://localhost:${PORT}${BASE_PATH}/`);
   });
 }
 

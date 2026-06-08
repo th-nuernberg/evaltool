@@ -4,10 +4,10 @@ services:
     image: evaltool:latest
     restart: unless-stopped
     hostname: evaltool
-    ports:
-      - "${PORT:-3000}:3000"
     environment:
-      - PORT=3000
+      - PORT=80
+      # URL prefix behind the reverse proxy (https://kiz1.in.ohmportal.de/evaltool).
+      - BASE_PATH=${BASE_PATH:-evaltool}
       # LLM proxy (TH Nürnberg / KIZ). The bearer token is NOT set here — it is
       # read at runtime from the Docker secret mounted below, so it is never
       # baked into the image or committed.
