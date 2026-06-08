@@ -37,6 +37,7 @@
     s.digest = s.digest || { conclusions: {}, note: '', reviewed: {} };
     s.digest.conclusions = s.digest.conclusions || {};
     s.digest.reviewed = s.digest.reviewed || {};
+    if (typeof s.digest.lecturer !== 'string') s.digest.lecturer = '';
     return s;
   }
   function saveCurrent() { if (current) window.Store.saveSession(current); }
@@ -517,6 +518,10 @@
       box.appendChild(wrap);
     });
 
+    const lect = $('d-lecturer');
+    lect.value = current.digest.lecturer || '';
+    lect.oninput = () => { current.digest.lecturer = lect.value; saveCurrent(); updateReportButtons(); };
+
     const note = $('d-note');
     note.value = current.digest.note || '';
     note.oninput = () => { current.digest.note = note.value; saveCurrent(); };
@@ -525,8 +530,10 @@
   }
   function updateReportButtons() {
     const allReviewed = window.Report.DIMENSIONS.every((d) => current.digest.reviewed[d.key]);
-    $('report-open').disabled = !allReviewed;
-    $('report-download').disabled = !allReviewed;
+    const hasLecturer = (current.digest.lecturer || '').trim().length > 0;
+    const ready = allReviewed && hasLecturer;
+    $('report-open').disabled = !ready;
+    $('report-download').disabled = !ready;
   }
 
   // ── Resume list ─────────────────────────────────────────────────────────────

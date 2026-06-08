@@ -19,6 +19,63 @@ window.Report = (function () {
       .replace(/"/g, '&quot;');
   }
 
+  // Minimal, dependency-free Markdown → HTML for the rendered report. HTML is
+  // escaped FIRST (content includes student freetext), then the subset the LLM
+  // and lecturers actually produce is supported: headings, **bold**/*italic*,
+  // `code`, and nested bullet/number lists; blank lines separate paragraphs.
+  function inlineMd(s) {
+    return esc(s)
+      .replace(/`([^`]+)`/g, '<code>$1</code>')
+      .replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>')
+      .replace(/__([^_\n]+)__/g, '<strong>$1</strong>')
+      .replace(/(^|[^*])\*([^*\n]+)\*/g, '$1<em>$2</em>')
+      .replace(/(^|[^_\w])_([^_\n]+)_/g, '$1<em>$2</em>');
+  }
+  function renderList(items) {
+    let i = 0;
+    function build(minIndent) {
+      let s = '<ul>';
+      while (i < items.length && items[i].indent >= minIndent) {
+        const cur = items[i];
+        s += '<li>' + cur.html;
+        i++;
+        if (i < items.length && items[i].indent > cur.indent) s += build(items[i].indent);
+        s += '</li>';
+      }
+      return s + '</ul>';
+    }
+    return build(items[0].indent);
+  }
+  function mdToHtml(src) {
+    const lines = String(src === null || src === undefined ? '' : src).replace(/\r\n?/g, '\n').split('\n');
+    const headRe = /^(#{1,6})\s+(.*)$/;
+    const listRe = /^(\s*)(?:[-*]|\d+\.)\s+(.*)$/;
+    const out = [];
+    let i = 0;
+    while (i < lines.length) {
+      if (!lines[i].trim()) { i++; continue; }
+      const h = lines[i].match(headRe);
+      if (h) { const lvl = Math.min(h[1].length + 2, 6); out.push(`<h${lvl}>${inlineMd(h[2])}</h${lvl}>`); i++; continue; }
+      let m = lines[i].match(listRe);
+      if (m) {
+        const items = [];
+        while (i < lines.length && (m = lines[i].match(listRe))) {
+          items.push({ indent: m[1].replace(/\t/g, '  ').length, html: inlineMd(m[2]) });
+          i++;
+        }
+        out.push(renderList(items));
+        continue;
+      }
+      const para = [];
+      while (i < lines.length && lines[i].trim() && !headRe.test(lines[i]) && !listRe.test(lines[i])) {
+        para.push(inlineMd(lines[i]));
+        i++;
+      }
+      out.push('<p>' + para.join('<br>') + '</p>');
+    }
+    return out.join('\n');
+  }
+
   function formatDate(ts) {
     const d = new Date(ts || Date.now());
     const p = (n) => String(n).padStart(2, '0');
@@ -52,7 +109,7 @@ window.Report = (function () {
     const blocks = [];
     const ff = summaryText(a.freeform);
     if (ff) {
-      blocks.push(`<h3>Allgemeine Freitext-Rückmeldungen</h3><div class="pre">${esc(ff)}</div>`);
+      blocks.push(`<h3>Allgemeine Freitext-Rückmeldungen</h3><div class="md">${mdToHtml(ff)}</div>`);
     }
     const tap = a.tap || {};
     const tapTitles = {
@@ -62,7 +119,7 @@ window.Report = (function () {
     };
     for (const k of Object.keys(tapTitles)) {
       const t = summaryText(tap[k]);
-      if (t) blocks.push(`<h3>TAP — ${esc(tapTitles[k])}</h3><div class="pre">${esc(t)}</div>`);
+      if (t) blocks.push(`<h3>TAP — ${esc(tapTitles[k])}</h3><div class="md">${mdToHtml(t)}</div>`);
     }
     if (!blocks.length) return '';
     return `<h2>Anhang B — Zusammenfassungen der Freitexte</h2>${blocks.join('')}`;
@@ -74,17 +131,19 @@ window.Report = (function () {
     const participants = (session.responses || []).length;
     const date = formatDate(session.closedAt || session.createdAt);
 
+    const lecturer = (digest.lecturer || '').trim();
+
     const conclusionsHtml = DIMENSIONS.map((d, i) => {
       const text = (conclusions[d.key] || '').trim();
       return `<section class="concl">
         <h2>${i + 1}. ${esc(d.title)}</h2>
-        <div class="pre">${text ? esc(text) : '<em>(keine Schlussfolgerung erfasst)</em>'}</div>
+        <div class="md">${text ? mdToHtml(text) : '<em>(keine Schlussfolgerung erfasst)</em>'}</div>
       </section>`;
     }).join('');
 
     const note = (digest.note || '').trim();
     const noteHtml = note
-      ? `<section class="note"><h2>Anmerkung</h2><div class="pre">${esc(note)}</div></section>`
+      ? `<section class="note"><h2>Anmerkung</h2><div class="md">${mdToHtml(note)}</div></section>`
       : '';
 
     return `<!DOCTYPE html>
@@ -102,6 +161,10 @@ window.Report = (function () {
   .meta td { padding: 0.15rem 0.8rem 0.15rem 0; }
   .meta td.k { color: var(--muted); }
   .pre { white-space: pre-wrap; }
+  .md p { margin: 0.4rem 0; }
+  .md ul { margin: 0.3rem 0; padding-left: 1.3rem; }
+  .md li { margin: 0.15rem 0; }
+  .md code { font-family: ui-monospace, Menlo, monospace; font-size: 0.9em; background: #f0f3f6; padding: 0 0.25em; border-radius: 3px; }
   .concl { margin: 0.6rem 0; }
   table.lk { width: 100%; border-collapse: collapse; font-family: system-ui, sans-serif; font-size: 0.9rem; }
   table.lk th, table.lk td { border: 1px solid var(--line); padding: 0.35rem 0.5rem; text-align: left; }
@@ -117,6 +180,7 @@ window.Report = (function () {
   <h1>Evaluationsbericht</h1>
   <div class="meta"><table>
     <tr><td class="k">Lehrveranstaltung</td><td>${esc(session.title)}</td></tr>
+    <tr><td class="k">Lehrperson</td><td>${esc(lecturer)}</td></tr>
     <tr><td class="k">Semester</td><td>${esc(session.term)}</td></tr>
     <tr><td class="k">Datum der Befragung</td><td>${esc(date)}</td></tr>
     <tr><td class="k">Teilnehmende</td><td>${participants}</td></tr>

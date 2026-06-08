@@ -153,8 +153,14 @@
       <div class="card section-instructor-only">
         <div class="eyes-only">Nur für die Lehrperson</div>
         <h1>Feedback aufbereiten</h1>
-        <p class="muted">Überarbeiten Sie die vier Schlussfolgerungen. Erst wenn alle als
-          <em>geprüft</em> markiert sind, lässt sich der Bericht herunterladen.</p>
+        <p class="muted">Überarbeiten Sie die vier Schlussfolgerungen. Erst wenn der Name der
+          Lehrperson eingetragen und alle Schlussfolgerungen als <em>geprüft</em> markiert sind,
+          lässt sich der Bericht erstellen.</p>
+
+        <label for="d-lecturer">Name der Lehrperson <span class="req">*</span></label>
+        <input type="text" id="d-lecturer" placeholder="z. B. Prof. Dr. Erika Mustermann" required />
+        <div class="field-hint">Erscheint im Kopf des Berichts und ist erforderlich.</div>
+
         <div id="digest-fields"></div>
 
         <label for="d-note">Anmerkung (optional)</label>
