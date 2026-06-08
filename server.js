@@ -357,6 +357,20 @@ if (require.main === module) {
   });
   server.listen(PORT, () => {
     console.log(`[evaltool] listening on http://localhost:${PORT}${BASE_PATH}/`);
+    // Probe the LLM once we're up (advisory — never blocks startup or crashes).
+    if (llm.isConfigured()) {
+      llm.checkHealth().then((h) => {
+        if (h.ok) {
+          console.log(`[evaltool] LLM reachable — ${h.model} @ ${h.url}`);
+        } else {
+          console.error('[evaltool] LLM NOT reachable — AI summaries will use the fallback until this is fixed:');
+          console.error(`[evaltool]   endpoint: ${h.url}`);
+          console.error(`[evaltool]   model:    ${h.model}`);
+          console.error(`[evaltool]   auth:     ${h.hasKey ? 'bearer token sent' : 'NO token sent (set LLM_API_KEY or provide .llmcredentials)'}`);
+          console.error(`[evaltool]   error:    ${h.error}`);
+        }
+      });
+    }
   });
 }
 
