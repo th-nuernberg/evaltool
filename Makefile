@@ -19,6 +19,7 @@ build: ## Build the Docker image
 	docker compose build
 
 up: ## Start via docker compose (detached)
+	@test -f .llmcredentials || { echo "ERROR: .llmcredentials missing. Run: cp .llmcredentials.example .llmcredentials  then add your LLM proxy token."; exit 1; }
 	docker compose up -d
 
 down: ## Stop the docker compose stack

@@ -1,0 +1,9 @@
+# Keep build context small and secrets out of the image.
+node_modules
+.git
+.gitignore
+.env
+.llmcredentials
+*.log
+.DS_Store
+.claude

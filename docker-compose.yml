@@ -3,14 +3,42 @@ services:
     build: .
     image: evaltool:latest
     restart: unless-stopped
-    # Loads LLM_BASE_URL / LLM_API_KEY / LLM_MODEL / HOST_KEY / PORT from .env
-    env_file:
-      - .env
+    hostname: evaltool
     ports:
       - "${PORT:-3000}:3000"
     environment:
       - PORT=3000
-    # Mount config read-only so question sets and prompts can be edited on the
-    # host (kiz1.in.ohmportal.de) without rebuilding the image.
+      # LLM proxy (TH Nürnberg / KIZ). The bearer token is NOT set here — it is
+      # read at runtime from the Docker secret mounted below, so it is never
+      # baked into the image or committed.
+      - LLM_BASE_URL=https://kiz1.in.ohmportal.de/llmproxy/v1
+      - LLM_API_KEY_FILE=/run/secrets/llmcredentials
+      # LLM_MODEL defaults to the proxy's medium model; override via .env if needed.
+      # HOST_KEY is optional (anti-abuse for a public instance).
+      - LLM_MODEL=${LLM_MODEL:-mistralai/Mistral-Medium-3.5-128B}
+      - HOST_KEY=${HOST_KEY:-}
+      - LLM_TEMPERATURE=${LLM_TEMPERATURE:-0.3}
+      - LLM_MAX_TOKENS=${LLM_MAX_TOKENS:-800}
+      - LLM_TIMEOUT_MS=${LLM_TIMEOUT_MS:-60000}
     volumes:
+      # Question sets & prompts: editable on the host without rebuilding the image.
       - ./config:/app/config:ro
+    # LLM credentials, provided as a Docker secret — mounted at
+    # /run/secrets/llmcredentials (matches LLM_API_KEY_FILE above). The file's
+    # first non-comment line is the API token; copy .llmcredentials.example to
+    # .llmcredentials and add yours.
+    secrets:
+      - llmcredentials
+
+    expose: 
+      - "80"
+    networks:
+      - kiz1_internal
+
+networks:
+  kiz1_internal:
+    external: true
+
+secrets:
+  llmcredentials:
+    file: ./.llmcredentials

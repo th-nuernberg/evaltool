@@ -39,9 +39,10 @@ Copy `.env.example` to `.env`:
 |---|---|
 | `PORT` | HTTP port (default `3000`). |
 | `HOST_KEY` | Optional. If set, creating a poll (and calling the LLM proxy) requires this key — anti-abuse for a public instance. Leave empty for open dev. |
-| `LLM_BASE_URL` | OpenAI-compatible root, e.g. `https://my-vllm/v1`. The app POSTs to `${LLM_BASE_URL}/chat/completions`. |
-| `LLM_API_KEY` | Bearer token for the LLM endpoint (optional). |
-| `LLM_MODEL` | Model name. **Required** (with `LLM_BASE_URL`) to enable AI features. |
+| `LLM_BASE_URL` | OpenAI-compatible root. The app POSTs to `${LLM_BASE_URL}/chat/completions`. Preconfigured for Docker to `https://kiz1.in.ohmportal.de/llmproxy/v1`. |
+| `LLM_MODEL` | Model id served by the proxy. Defaults to `mistralai/Mistral-Medium-3.5-128B`; override to use another. |
+| `LLM_API_KEY` | Bearer token, inline. Simplest for local dev. |
+| `LLM_API_KEY_FILE` | Path to a file containing the token, used instead of `LLM_API_KEY`. The Docker deployment bind-mounts `.llmcredentials` here, so the token is never baked into the image. |
 | `LLM_TEMPERATURE`, `LLM_MAX_TOKENS`, `LLM_TIMEOUT_MS` | Optional generation tuning. |
 
 - **Question sets** live in `config/questionsets/*.yaml` (Likert + freeform).
@@ -71,13 +72,16 @@ response is ever lost to a missing collector.
 For the hosted instance (e.g. `kiz1.in.ohmportal.de`):
 
 ```bash
-cp .env.example .env   # set LLM_* and a HOST_KEY
-make build             # docker compose build
-make up                # docker compose up -d
+cp .env.example .env                        # adjust LLM_MODEL / HOST_KEY if needed
+cp .llmcredentials.example .llmcredentials  # paste your LLM proxy token
+make build                                  # docker compose build
+make up                                      # docker compose up -d
 ```
 
-`config/` is mounted read-only, so question sets and prompts can be edited on the
-host without rebuilding the image.
+The LLM endpoint (`https://kiz1.in.ohmportal.de/llmproxy/v1`) is preconfigured in
+`docker-compose.yml`; the bearer token is read at runtime from the bind-mounted
+`.llmcredentials` file and never baked into the image. `config/` is mounted
+read-only, so question sets and prompts can be edited on the host without a rebuild.
 
 ## Project layout
 
