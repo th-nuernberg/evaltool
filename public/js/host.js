@@ -44,8 +44,13 @@
   // ── Init ────────────────────────────────────────────────────────────────────
   async function init() {
     try {
-      meta = await fetch(BASE + '/api/meta').then((r) => r.json());
-    } catch (_) {
+      const r = await fetch(BASE + '/api/meta');
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      meta = await r.json();
+    } catch (e) {
+      // Don't silently assume "no key required" — if a request later 403s, the
+      // key field is revealed so the user can still recover (see setup submit).
+      console.warn('[evaltool] /api/meta failed:', (e && e.message) || e);
       meta = { defaultTerm: '', questionSets: [], hostKeyRequired: false, llmConfigured: false };
     }
     $('f-term').value = meta.defaultTerm || '';
@@ -110,7 +115,9 @@
     const title = $('f-title').value.trim();
     const term = $('f-term').value.trim();
     const questionSetId = $('f-set').value;
-    if (meta.hostKeyRequired) hostKey = $('f-hostkey').value.trim();
+    // Read the key whenever the field is visible — it may have been revealed by
+    // a prior 403 even if /api/meta didn't report it as required.
+    if (!$('hostkey-wrap').classList.contains('hidden')) hostKey = $('f-hostkey').value.trim();
     if (!title) return setupError('Bitte einen Namen für die Lehrveranstaltung angeben.');
 
     $('create-btn').disabled = true;
@@ -121,9 +128,17 @@
         body: JSON.stringify({ title, term, questionSetId, hostKey }),
       });
       const data = await res.json();
-      if (!res.ok) return setupError(data.error || 'Anlegen fehlgeschlagen.');
+      if (!res.ok) {
+        // 403 = key required or wrong. Reveal the field so the user can enter it
+        // and retry, even if the welcome screen didn't prompt for it.
+        if (res.status === 403) {
+          show($('hostkey-wrap'));
+          $('f-hostkey').focus();
+        }
+        return setupError(data.error || 'Anlegen fehlgeschlagen.');
+      }
 
-      if (meta.hostKeyRequired && hostKey) localStorage.setItem(HOSTKEY_LS, hostKey);
+      if (hostKey) localStorage.setItem(HOSTKEY_LS, hostKey);
 
       current = ensureShape({
         sessionId: data.sessionId,
@@ -224,6 +239,7 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ input, hostKey, system }),
       });
+      if (res.status === 403) return { available: false, message: 'Zugangsschlüssel ungültig oder fehlend – KI-Funktionen gesperrt.' };
       if (!res.ok) return { available: false, message: 'LLM not available at present' };
       return await res.json();
     } catch (_) {
