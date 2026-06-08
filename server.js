@@ -148,6 +148,12 @@ router.get('/api/meta', (req, res) => {
   });
 });
 
+// Validate a host key without side effects — lets the dashboard "unlock" up
+// front and give immediate feedback before a poll is created (R1).
+router.post('/api/verify-key', (req, res) => {
+  res.json({ valid: hostKeyOk((req.body || {}).hostKey) });
+});
+
 // Create a poll session. Guarded by HOST_KEY when configured (R1 anti-abuse).
 router.post('/api/session', (req, res) => {
   const { title, term, questionSetId, hostKey } = req.body || {};
@@ -273,6 +279,10 @@ io.on('connection', (socket) => {
     sessions.delete(sessionId);
   });
 
+  // Student participation is intentionally UNAUTHENTICATED — the poll page
+  // (/eval/:sessionId) must never be gated by HOST_KEY. Anyone with the link can
+  // answer anonymously; HOST_KEY only guards host actions (create poll, LLM,
+  // verify-key). Do NOT add a hostKeyOk() check to student-join/submit-response.
   socket.on('student-join', ({ sessionId } = {}) => {
     const s = sessions.get(sessionId);
     role = 'student';

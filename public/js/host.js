@@ -71,8 +71,12 @@
     updateDesc();
 
     if (meta.hostKeyRequired) {
-      show($('hostkey-wrap'));
-      if (hostKey) $('f-hostkey').value = hostKey;
+      // Ask for the key up front; auto-unlock if a previously stored key is still valid.
+      showHostkeyGate();
+      if (hostKey && (await verifyKey(hostKey))) unlockSetup();
+      else hostKey = '';
+    } else {
+      unlockSetup();
     }
     if (!meta.llmConfigured) show($('llm-banner'));
 
@@ -108,6 +112,50 @@
     }
   }
 
+  // ── Host-key gate: ask for & validate the key before the dashboard is usable ─
+  async function verifyKey(key) {
+    try {
+      const res = await fetch(BASE + '/api/verify-key', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ hostKey: key }),
+      });
+      return res.ok && Boolean((await res.json()).valid);
+    } catch (_) { return false; }
+  }
+  function unlockSetup() {
+    hide($('hostkey-gate'));
+    show($('setup-content'));
+  }
+  function showHostkeyGate(msg) {
+    hide($('setup-content'));
+    show($('hostkey-gate'));
+    if (msg) { $('hostkey-error').textContent = msg; show($('hostkey-error')); }
+    else hide($('hostkey-error'));
+    $('f-hostkey').value = '';
+    $('f-hostkey').focus();
+  }
+  async function submitHostKey() {
+    const key = $('f-hostkey').value.trim();
+    if (!key) { $('hostkey-error').textContent = 'Bitte den Zugangsschlüssel eingeben.'; show($('hostkey-error')); return; }
+    $('unlock-btn').disabled = true;
+    const ok = await verifyKey(key);
+    $('unlock-btn').disabled = false;
+    if (ok) {
+      hostKey = key;
+      localStorage.setItem(HOSTKEY_LS, key);
+      unlockSetup();
+    } else {
+      $('hostkey-error').textContent = 'Zugangsschlüssel ungültig.';
+      show($('hostkey-error'));
+      $('f-hostkey').select();
+    }
+  }
+  $('unlock-btn').addEventListener('click', submitHostKey);
+  $('f-hostkey').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); submitHostKey(); }
+  });
+
   // ── Setup: create a session ─────────────────────────────────────────────────
   $('setup-form').addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -115,9 +163,6 @@
     const title = $('f-title').value.trim();
     const term = $('f-term').value.trim();
     const questionSetId = $('f-set').value;
-    // Read the key whenever the field is visible — it may have been revealed by
-    // a prior 403 even if /api/meta didn't report it as required.
-    if (!$('hostkey-wrap').classList.contains('hidden')) hostKey = $('f-hostkey').value.trim();
     if (!title) return setupError('Bitte einen Namen für die Lehrveranstaltung angeben.');
 
     $('create-btn').disabled = true;
@@ -129,16 +174,14 @@
       });
       const data = await res.json();
       if (!res.ok) {
-        // 403 = key required or wrong. Reveal the field so the user can enter it
-        // and retry, even if the welcome screen didn't prompt for it.
+        // 403 = key required or no longer valid → re-ask via the gate.
         if (res.status === 403) {
-          show($('hostkey-wrap'));
-          $('f-hostkey').focus();
+          hostKey = '';
+          localStorage.removeItem(HOSTKEY_LS);
+          return showHostkeyGate('Zugangsschlüssel ungültig oder erforderlich. Bitte erneut eingeben.');
         }
         return setupError(data.error || 'Anlegen fehlgeschlagen.');
       }
-
-      if (hostKey) localStorage.setItem(HOSTKEY_LS, hostKey);
 
       current = ensureShape({
         sessionId: data.sessionId,

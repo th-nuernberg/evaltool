@@ -29,36 +29,47 @@
 
     <!-- ── View: Setup ───────────────────────────────────────────────────── -->
     <section id="view-setup">
-      <div class="card" id="resume-card" style="display:none">
-        <h2>Vorhandene Evaluationen</h2>
-        <p class="small muted">Lokal in diesem Browser gespeichert.</p>
-        <ul class="list-reset" id="resume-list"></ul>
+      <!-- Host-key gate: shown when the instance is protected and not yet unlocked. -->
+      <div class="card hidden" id="hostkey-gate">
+        <h1>Zugangsschlüssel erforderlich</h1>
+        <p class="small muted">Diese Instanz ist geschützt. Bitte geben Sie den Zugangsschlüssel ein,
+          um Evaluationen anzulegen und auszuwerten.</p>
+        <label for="f-hostkey">Zugangsschlüssel <span class="req">*</span></label>
+        <input type="password" id="f-hostkey" placeholder="Zugangsschlüssel der Instanz"
+          autocomplete="current-password" />
+        <div id="hostkey-error" class="notice warn hidden" style="margin-top:1rem"></div>
+        <div class="btn-row">
+          <button type="button" id="unlock-btn">Bestätigen</button>
+        </div>
       </div>
 
-      <div class="card">
-        <h1>Neue Evaluation anlegen</h1>
-        <form id="setup-form">
-          <label for="f-title">Name der Lehrveranstaltung <span class="req">*</span></label>
-          <input type="text" id="f-title" placeholder="z. B. Grundlagen der Informatik" required />
+      <div id="setup-content">
+        <div class="card" id="resume-card" style="display:none">
+          <h2>Vorhandene Evaluationen</h2>
+          <p class="small muted">Lokal in diesem Browser gespeichert.</p>
+          <ul class="list-reset" id="resume-list"></ul>
+        </div>
 
-          <label for="f-term">Semester</label>
-          <input type="text" id="f-term" placeholder="wird automatisch gesetzt" />
-          <div class="field-hint">Automatisch aus dem heutigen Datum abgeleitet – bei Bedarf anpassbar.</div>
+        <div class="card">
+          <h1>Neue Evaluation anlegen</h1>
+          <form id="setup-form">
+            <label for="f-title">Name der Lehrveranstaltung <span class="req">*</span></label>
+            <input type="text" id="f-title" placeholder="z. B. Grundlagen der Informatik" required />
 
-          <label for="f-set">Fragebogen</label>
-          <select id="f-set"></select>
-          <div class="field-hint" id="set-desc"></div>
+            <label for="f-term">Semester</label>
+            <input type="text" id="f-term" placeholder="wird automatisch gesetzt" />
+            <div class="field-hint">Automatisch aus dem heutigen Datum abgeleitet – bei Bedarf anpassbar.</div>
 
-          <div id="hostkey-wrap" class="hidden">
-            <label for="f-hostkey">Zugangsschlüssel <span class="req">*</span></label>
-            <input type="password" id="f-hostkey" placeholder="Zugangsschlüssel der Instanz" />
-          </div>
+            <label for="f-set">Fragebogen</label>
+            <select id="f-set"></select>
+            <div class="field-hint" id="set-desc"></div>
 
-          <div id="setup-error" class="notice warn hidden" style="margin-top:1rem"></div>
-          <div class="btn-row">
-            <button type="submit" id="create-btn">Evaluation starten</button>
-          </div>
-        </form>
+            <div id="setup-error" class="notice warn hidden" style="margin-top:1rem"></div>
+            <div class="btn-row">
+              <button type="submit" id="create-btn">Evaluation starten</button>
+            </div>
+          </form>
+        </div>
       </div>
     </section>
 
