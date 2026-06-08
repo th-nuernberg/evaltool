@@ -40,7 +40,7 @@ Copy `.env.example` to `.env`:
 | `PORT` | HTTP port (default `3000`). |
 | `BASE_PATH` | URL prefix for hosting behind a reverse proxy (default `evaltool` → served under `/evaltool`). Set empty (`BASE_PATH=`) to serve from the root. The proxy must forward the prefix, not strip it. |
 | `HOST_KEY` | Optional. If set, creating a poll (and calling the LLM proxy) requires this key — anti-abuse for a public instance. Leave empty for open dev. |
-| `LLM_BASE_URL` | OpenAI-compatible root. The app POSTs to `${LLM_BASE_URL}/chat/completions`. Preconfigured for Docker to `https://kiz1.in.ohmportal.de/llmproxy/v1`. |
+| `LLM_BASE_URL` | OpenAI-compatible root. The app POSTs to `${LLM_BASE_URL}/chat/completions`. Defaults (Docker) to the internal LiteLLM gateway `http://litellm:4000/v1`; override via `.env`. |
 | `LLM_MODEL` | Model id served by the proxy. Defaults to `mistralai/Mistral-Medium-3.5-128B`; override to use another. |
 | `LLM_API_KEY` | Bearer token, inline. Simplest for local dev. |
 | `LLM_API_KEY_FILE` | Path to a file containing the token, used instead of `LLM_API_KEY`. The Docker deployment bind-mounts `.llmcredentials` here, so the token is never baked into the image. |
@@ -79,11 +79,16 @@ make build                                  # docker compose build
 make up                                      # docker compose up -d
 ```
 
-The LLM endpoint (`https://kiz1.in.ohmportal.de/llmproxy/v1`) is preconfigured in
-`docker-compose.yml`; the bearer token is read at runtime from the
+The LLM endpoint defaults to the internal LiteLLM gateway `http://litellm:4000/v1`
+(override `LLM_BASE_URL` in `.env`); the bearer token is read at runtime from the
 `.llmcredentials` Docker secret and never baked into the image. `config/` is
 mounted read-only, so question sets and prompts can be edited on the host without
 a rebuild.
+
+The startup log reports whether the LLM is reachable (`LLM reachable …` or a
+diagnostic). Note this probe is a server→LLM check; the in-page summaries are
+browser→server→LLM, so also ensure the reverse proxy forwards `/evaltool/api/*`
+and allows a generous read timeout (summaries can take 10–30 s).
 
 ### Reverse proxy
 

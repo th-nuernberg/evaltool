@@ -8,10 +8,10 @@ services:
       - PORT=80
       # URL prefix behind the reverse proxy (https://kiz1.in.ohmportal.de/evaltool).
       - BASE_PATH=${BASE_PATH:-evaltool}
-      # LLM proxy (TH Nürnberg / KIZ). The bearer token is NOT set here — it is
-      # read at runtime from the Docker secret mounted below, so it is never
-      # baked into the image or committed.
-      - LLM_BASE_URL=https://kiz1.in.ohmportal.de/llmproxy/v1
+      # LLM proxy — internal LiteLLM gateway by default; override LLM_BASE_URL via
+      # .env if needed. The bearer token is NOT set here — it is read at runtime
+      # from the Docker secret mounted below, so it is never baked into the image.
+      - LLM_BASE_URL=${LLM_BASE_URL:-http://litellm:4000/v1}
       - LLM_API_KEY_FILE=/run/secrets/llmcredentials
       # LLM_MODEL defaults to the proxy's medium model; override via .env if needed.
       # HOST_KEY is optional (anti-abuse for a public instance).
