@@ -223,5 +223,5 @@ window.Report = (function () {
     window.Store.download(reportFilename(session), buildReportHTML(session), 'text/html');
   }
 
-  return { DIMENSIONS, buildReportHTML, openReport, downloadReport, formatDate };
+  return { DIMENSIONS, buildReportHTML, openReport, downloadReport, formatDate, mdToHtml };
 })();

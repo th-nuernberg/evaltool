@@ -269,8 +269,10 @@
   function renderLLM(container, result) {
     const box = document.createElement('div');
     if (result && result.available) {
-      box.className = 'llm-box';
-      box.textContent = result.text;
+      box.className = 'llm-box md';
+      // Render the (basic) Markdown the LLM returns — same converter as the
+      // report, so on-screen and printed output match. mdToHtml escapes first.
+      box.innerHTML = window.Report.mdToHtml(result.text);
     } else {
       box.className = 'llm-box unavailable';
       box.textContent = (result && result.message) || 'LLM not available at present';

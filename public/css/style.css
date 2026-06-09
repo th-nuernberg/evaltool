@@ -162,9 +162,18 @@ button.danger:hover { background: #8f1d17; }
 @media (max-width: 560px) { .bar-row { grid-template-columns: 6.5rem 1fr 2.6rem; } }
 
 /* ── LLM output boxes ──────────────────────────────────────────────────────── */
-.llm-box { white-space: pre-wrap; background: #fbfcfd; border: 1px solid var(--line); border-radius: 8px; padding: 0.8rem 0.9rem; margin-top: 0.5rem; }
-.llm-box.unavailable { color: var(--warn); background: #fdf6ef; border-color: #f0dcc6; font-style: italic; }
+.llm-box { background: #fbfcfd; border: 1px solid var(--line); border-radius: 8px; padding: 0.8rem 0.9rem; margin-top: 0.5rem; }
+.llm-box.unavailable { white-space: pre-wrap; color: var(--warn); background: #fdf6ef; border-color: #f0dcc6; font-style: italic; }
 .llm-loading { color: var(--muted); font-style: italic; }
+
+/* Rendered Markdown on screen (LLM summaries). Mirrors the report's .md styles. */
+.md > :first-child { margin-top: 0; }
+.md > :last-child { margin-bottom: 0; }
+.md p { margin: 0.5rem 0; }
+.md ul, .md ol { margin: 0.4rem 0; padding-left: 1.4rem; }
+.md li { margin: 0.2rem 0; }
+.md code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.85em; background: #eef2f6; padding: 0.05em 0.3em; border-radius: 4px; }
+.md h3, .md h4, .md h5 { margin: 0.6rem 0 0.2rem; font-size: 0.98rem; }
 
 /* AI-summary block: responses + editable prompt + result */
 .summary-block h3 { margin-top: 0; }
