@@ -41,6 +41,11 @@
     return s;
   }
   function saveCurrent() { if (current) window.Store.saveSession(current); }
+  function todayISO() {
+    const d = new Date();
+    const p = (n) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+  }
 
   // ── Init ────────────────────────────────────────────────────────────────────
   async function init() {
@@ -521,6 +526,11 @@
     const lect = $('d-lecturer');
     lect.value = current.digest.lecturer || '';
     lect.oninput = () => { current.digest.lecturer = lect.value; saveCurrent(); updateReportButtons(); };
+
+    const disc = $('d-discussed');
+    if (!current.digest.discussedOn) { current.digest.discussedOn = todayISO(); saveCurrent(); }
+    disc.value = current.digest.discussedOn;
+    disc.onchange = () => { current.digest.discussedOn = disc.value; saveCurrent(); };
 
     const note = $('d-note');
     note.value = current.digest.note || '';

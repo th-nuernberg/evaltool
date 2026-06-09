@@ -81,6 +81,11 @@ window.Report = (function () {
     const p = (n) => String(n).padStart(2, '0');
     return `${p(d.getDate())}.${p(d.getMonth() + 1)}.${d.getFullYear()}`;
   }
+  // Format a stored ISO date (YYYY-MM-DD) as DD.MM.YYYY, without timezone shifts.
+  function formatISODate(iso) {
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso || ''));
+    return m ? `${m[3]}.${m[2]}.${m[1]}` : '';
+  }
 
   function likertTableRows(session) {
     const likerts = (session.questions || []).filter((q) => q.type === 'likert');
@@ -130,6 +135,7 @@ window.Report = (function () {
     const conclusions = digest.conclusions || {};
     const participants = (session.responses || []).length;
     const date = formatDate(session.closedAt || session.createdAt);
+    const discussed = formatISODate(digest.discussedOn);
 
     const lecturer = (digest.lecturer || '').trim();
 
@@ -183,6 +189,7 @@ window.Report = (function () {
     <tr><td class="k">Lehrperson</td><td>${esc(lecturer)}</td></tr>
     <tr><td class="k">Semester</td><td>${esc(session.term)}</td></tr>
     <tr><td class="k">Datum der Befragung</td><td>${esc(date)}</td></tr>
+    ${discussed ? `<tr><td class="k">Mit Studierenden besprochen am</td><td>${esc(discussed)}</td></tr>` : ''}
     <tr><td class="k">Teilnehmende</td><td>${participants}</td></tr>
   </table></div>
 
