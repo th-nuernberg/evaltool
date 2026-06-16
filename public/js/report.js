@@ -152,6 +152,20 @@ window.Report = (function () {
       ? `<section class="note"><h2>Anmerkung</h2><div class="md">${mdToHtml(note)}</div></section>`
       : '';
 
+    // Optional appendix sections: the report always starts with the digest;
+    // these are hidden by default and opt-in for print via the screen-only
+    // toolbar checkboxes (which reveal the section and so include it in print).
+    const statsHtml = likertTableRows(session);
+    const summariesHtml = summariesSection(session);
+    const toggle = (id, label) =>
+      `<label class="opt"><input type="checkbox" data-target="${id}" /> ${label}</label>`;
+    const toggles =
+      (statsHtml ? toggle('sec-stats', 'Statistik (Likert-Skalen)') : '') +
+      (summariesHtml ? toggle('sec-summaries', 'Zusammenfassungen der Freitexte') : '');
+    const optional =
+      (statsHtml ? `<section class="optional" id="sec-stats" hidden>${statsHtml}</section>` : '') +
+      (summariesHtml ? `<section class="optional" id="sec-summaries" hidden>${summariesHtml}</section>` : '');
+
     return `<!DOCTYPE html>
 <html lang="de"><head><meta charset="utf-8" />
 <title>Evaluationsbericht — ${esc(session.title)}</title>
@@ -178,11 +192,17 @@ window.Report = (function () {
   .hint { color: var(--muted); font-size: 0.82rem; font-family: system-ui, sans-serif; }
   .toolbar { font-family: system-ui, sans-serif; margin-bottom: 1rem; }
   .toolbar button { font: inherit; cursor: pointer; padding: 0.5rem 1rem; border-radius: 8px; border: 1px solid var(--brand); background: var(--brand); color: #fff; }
+  .toolbar .opts { margin-top: 0.6rem; display: flex; flex-wrap: wrap; gap: 0.3rem 1.2rem; align-items: center; font-size: 0.9rem; }
+  .toolbar .opts-label { color: var(--muted); }
+  .toolbar label.opt { cursor: pointer; }
   footer { margin-top: 2rem; color: var(--muted); font-size: 0.8rem; font-family: system-ui, sans-serif; border-top: 1px solid var(--line); padding-top: 0.6rem; }
   @media print { .toolbar { display: none; } body { margin: 0; max-width: none; } }
 </style></head>
 <body>
-  <div class="toolbar"><button onclick="window.print()">Als PDF drucken / speichern</button></div>
+  <div class="toolbar">
+    <button onclick="window.print()">Als PDF drucken / speichern</button>
+    ${toggles ? `<div class="opts"><span class="opts-label">Für den Druck zusätzlich aufnehmen:</span>${toggles}</div>` : ''}
+  </div>
   <h1>Evaluationsbericht</h1>
   <div class="meta"><table>
     <tr><td class="k">Lehrveranstaltung</td><td>${esc(session.title)}</td></tr>
@@ -196,13 +216,20 @@ window.Report = (function () {
   <h1 style="font-size:1.25rem;margin-top:1.5rem">Schlussfolgerungen</h1>
   ${conclusionsHtml}
   ${noteHtml}
-  ${likertTableRows(session)}
-  ${summariesSection(session)}
+  ${optional}
 
   <footer>
     Erstellt mit evaltool · Teaching Analysis Poll · anonyme Befragung ·
     Die Schlussfolgerungen wurden von der Lehrperson geprüft und überarbeitet.
   </footer>
+  <script>
+    document.querySelectorAll('.toolbar input[type=checkbox][data-target]').forEach(function (cb) {
+      cb.addEventListener('change', function () {
+        var el = document.getElementById(cb.getAttribute('data-target'));
+        if (el) el.hidden = !cb.checked;
+      });
+    });
+  </script>
 </body></html>`;
   }
 
