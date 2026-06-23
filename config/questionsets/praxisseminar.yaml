@@ -1,0 +1,141 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Praxisseminar — übernommen aus dem Moodle-Feedback-Export (feedback_4650.xml)
+#
+# Hinweise zur Übernahme (evaltool kennt nur "likert" und "freeform"):
+#   • Moodle "multichoicerated" (5-stufige Skalen) -> likert. Die Labels stehen in
+#     Anzeigereihenfolge; der Antwortwert ist der 1-basierte Index (höher = weiter
+#     rechts auf der ursprünglichen Skala).
+#   • Moodle "textarea" -> freeform.
+#   • "Studiengang" (A1) ist eine nominale Einfachauswahl; als likert abgebildet,
+#     damit die Auswahl funktioniert — die Verteilung ist aussagekräftig,
+#     Mittelwert/Median hier nicht.
+#   • "Arbeitsaufwand" (A3) war im Original ein Zahlenfeld (0–10 Std.). Da es
+#     keinen Zahlentyp gibt, als Freitext übernommen (Stundenzahl eintragen).
+#   • Die drei TAP-Fragen werden – wie bei jedem Fragebogen – automatisch
+#     angehängt und sind hier nicht aufgeführt.
+# ─────────────────────────────────────────────────────────────────────────────
+
+id: praxisseminar
+title: Praxisseminar
+description: Evaluation des Praxisseminars (übernommen aus dem Moodle-Feedback-Export).
+
+questions:
+  # ── Allgemeines ─────────────────────────────────────────────────────────────
+  - id: studiengang
+    type: likert
+    text: In welchem Studiengang studieren Sie?
+    labels:
+      - Informatik
+      - Wirtschaftsinformatik
+      - Medieninformatik
+      - Allgemeinwissenschaften
+
+  - id: arbeitsaufwand
+    type: freeform
+    text: "Wie groß war Ihr durchschnittlicher wöchentlicher Arbeitsaufwand zu Hause für die Vor- und Nachbereitung der Lehrveranstaltung (in Stunden, ohne Präsenzzeit in Vorlesungen und Übungen)?"
+
+  # ── Durchführung des Seminars ───────────────────────────────────────────────
+  - id: referate_anzahl
+    type: likert
+    text: Anzahl Referate pro Session
+    labels:
+      - zu wenig
+      - etwas zu wenig
+      - genau richtig
+      - etwas zu viel
+      - zu viel
+
+  - id: firmen_themen
+    type: likert
+    text: Zusammenstellung Firmen und Themen
+    labels:
+      - uninteressant / irrelevant
+      - eher uninteressant / irrelevant
+      - weder noch
+      - eher interessant / relevant
+      - interessant/relevant
+
+  - id: moodle_inhalte
+    type: likert
+    text: Inhalte in Moodle
+    labels:
+      - überflüssig
+      - eher überflüssig
+      - weder noch
+      - eher hilfreich
+      - hilfreich
+
+  - id: niveau
+    type: likert
+    text: inhaltliches Niveau
+    labels:
+      - zu niedrig
+      - etwas zu niedrig
+      - genau richtig
+      - etwas zu hoch
+      - zu hoch
+
+  # ── Darbietung des Lehrstoffes ──────────────────────────────────────────────
+  - id: moderation
+    type: likert
+    text: Diskussionsleitung / Moderation / Feedback zu den Vorträgen
+    labels:
+      - verwirrend
+      - eher verwirrend
+      - weder noch
+      - eher übersichtlich
+      - übersichtlich
+
+  - id: diskussionsbereitschaft
+    type: likert
+    text: Diskussionsbereitschaft
+    labels:
+      - dürftig
+      - eher dürftig
+      - weder noch
+      - eher ausgeprägt
+      - ausgeprägt
+
+  - id: dozent_kompetenz
+    type: likert
+    text: Dozent war fachlich
+    labels:
+      - nicht kompetent
+      - eher nicht kompetent
+      - weder noch
+      - eher kompetent
+      - sehr kompetent
+
+  # ── Allgemeines ─────────────────────────────────────────────────────────────
+  - id: lernerfolg
+    type: likert
+    text: Ihr Lernerfolg
+    labels:
+      - gering
+      - eher gering
+      - weder noch
+      - eher hoch
+      - hoch
+
+  - id: gesamturteil
+    type: likert
+    text: Ihr Gesamturteil
+    labels:
+      - sehr schlecht
+      - schlecht
+      - mittelmäßig
+      - gut
+      - sehr gut
+
+  # ── Freitext ────────────────────────────────────────────────────────────────
+  - id: besonders_gut
+    type: freeform
+    text: Was finden Sie besonders gut?
+
+  - id: verbesserungswuerdig
+    type: freeform
+    text: Was finden Sie besonders verbesserungswürdig?
+
+  - id: weitere_anregungen
+    type: freeform
+    text: "Weitere Anregungen und Bemerkungen zur Lehrveranstaltung:"
