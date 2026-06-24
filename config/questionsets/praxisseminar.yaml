@@ -15,8 +15,8 @@
 #     angehängt und sind hier nicht aufgeführt.
 # ─────────────────────────────────────────────────────────────────────────────
 
-id: praxisseminar
-title: Praxisseminar
+id: in-praxisseminar
+title: IN/Praxisseminar
 description: Evaluation des Praxisseminars (übernommen aus dem Moodle-Feedback-Export).
 
 questions:
@@ -126,16 +126,3 @@ questions:
       - mittelmäßig
       - gut
       - sehr gut
-
-  # ── Freitext ────────────────────────────────────────────────────────────────
-  - id: besonders_gut
-    type: freeform
-    text: Was finden Sie besonders gut?
-
-  - id: verbesserungswuerdig
-    type: freeform
-    text: Was finden Sie besonders verbesserungswürdig?
-
-  - id: weitere_anregungen
-    type: freeform
-    text: "Weitere Anregungen und Bemerkungen zur Lehrveranstaltung:"
