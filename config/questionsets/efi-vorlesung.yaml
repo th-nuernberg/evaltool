@@ -1,0 +1,71 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# EFI/Vorlesung — übernommen aus dem Moodle-Feedback (Ergebnis-Export "Vorlesung")
+#
+# Hinweise zur Übernahme (evaltool kennt nur "likert" und "freeform"):
+#   • 5-stufige Skalen, bei denen nur die Endpunkte benannt sind -> likert.
+#     Die Labels tragen die Endpunkt-Bezeichnungen aus dem Export (1 … 5);
+#     die Mitte ist als (2)/(3)/(4) dargestellt.
+#   • Freitextfragen -> freeform.
+#   • Die drei TAP-Fragen werden – wie bei jedem Fragebogen – automatisch
+#     angehängt und sind hier nicht aufgeführt.
+# ─────────────────────────────────────────────────────────────────────────────
+
+id: efi-vorlesung
+title: EFI/Vorlesung
+description: Evaluation der Vorlesung (übernommen aus dem Moodle-Feedback).
+
+questions:
+  - id: stoffmenge
+    type: likert
+    text: "Stoffmenge"
+    labels: ["zu wenig (1)", "(2)", "(3)", "(4)", "zu viel (5)"]
+
+  - id: roter_faden
+    type: likert
+    text: "Roter Faden"
+    labels: ["nicht zu erkennen (1)", "(2)", "(3)", "(4)", "deutlich sichtbar (5)"]
+
+  - id: unterlagen
+    type: likert
+    text: "Schriftliche Unterlagen"
+    labels: ["überflüssig (1)", "(2)", "(3)", "(4)", "hilfreich (5)"]
+
+  - id: niveau
+    type: likert
+    text: "Niveau der Lehrveranstaltung"
+    labels: ["zu niedrig (1)", "(2)", "(3)", "(4)", "zu hoch (5)"]
+
+  - id: tafelarbeit
+    type: likert
+    text: "Tafelarbeit/Folien"
+    labels: ["verwirrend (1)", "(2)", "(3)", "(4)", "übersichtlich (5)"]
+
+  - id: vortragsstil
+    type: likert
+    text: "Vortragsstil"
+    labels: ["langweilig (1)", "(2)", "(3)", "(4)", "motivierend (5)"]
+
+  - id: diskussionsbereitschaft
+    type: likert
+    text: "Diskussionsbereitschaft"
+    labels: ["dürftig (1)", "(2)", "(3)", "(4)", "ausgeprägt (5)"]
+
+  - id: dozent_fachlich
+    type: likert
+    text: "Dozent war fachlich"
+    labels: ["nicht kompetent (1)", "(2)", "(3)", "(4)", "sehr kompetent (5)"]
+
+  - id: praxisbezug
+    type: likert
+    text: "Praxisbezug des Lehrstoffes"
+    labels: ["nicht vorhanden (1)", "(2)", "(3)", "(4)", "ausgeprägt (5)"]
+
+  - id: uebungsbeispiele_menge
+    type: likert
+    text: "Übungsbeispiele (Menge)"
+    labels: ["zu wenig (1)", "(2)", "(3)", "(4)", "zuviel (5)"]
+
+  - id: uebungsbeispiele_inhalt
+    type: likert
+    text: "Übungsbeispiele (Inhalt)"
+    labels: ["ungeeignet (1)", "(2)", "(3)", "(4)", "vertiefend (5)"]

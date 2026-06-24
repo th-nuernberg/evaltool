@@ -1,0 +1,51 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# EFI/Praktikum — übernommen aus dem Moodle-Feedback (Ergebnis-Export "Praktikum")
+#
+# Hinweise zur Übernahme (evaltool kennt nur "likert" und "freeform"):
+#   • 5-stufige Skalen, bei denen nur die Endpunkte benannt sind -> likert.
+#     Die Labels tragen die Endpunkt-Bezeichnungen aus dem Export (1 … 5);
+#     die Mitte ist als (2)/(3)/(4) dargestellt.
+#   • Freitextfragen -> freeform.
+#   • Die drei TAP-Fragen werden – wie bei jedem Fragebogen – automatisch
+#     angehängt und sind hier nicht aufgeführt.
+# ─────────────────────────────────────────────────────────────────────────────
+
+id: efi-praktikum
+title: EFI/Praktikum
+description: Evaluation des Praktikums (übernommen aus dem Moodle-Feedback).
+
+questions:
+  - id: praktikumsunterlagen
+    type: likert
+    text: "Praktikumsunterlagen"
+    labels: ["unbrauchbar (1)", "(2)", "(3)", "(4)", "sehr informativ (5)"]
+
+  - id: geraeteausstattung
+    type: likert
+    text: "Geräteausstattung"
+    labels: ["veraltet (1)", "(2)", "(3)", "(4)", "aktuell (5)"]
+
+  - id: betreuung
+    type: likert
+    text: "Betreuung"
+    labels: ["nur präsent (1)", "(2)", "(3)", "(4)", "intensiv (5)"]
+
+  - id: zeitvorgabe
+    type: likert
+    text: "Zeitvorgabe für die Aufgabe / das Projekt"
+    labels: ["viel zu wenig (1)", "(2)", "(3)", "(4)", "angemessen (5)"]
+
+  - id: inhaltliche_abstimmung
+    type: likert
+    text: "Inhaltliche Abstimmung mit den Lehrveranstaltungen"
+    labels: ["vage (1)", "(2)", "(3)", "(4)", "sehr gut (5)"]
+
+  - id: zeitliche_lage
+    type: likert
+    text: "Zeitliche Lage des Praktikums zur Lehrveranstaltung"
+    labels: ["unpassend (1)", "(2)", "(3)", "(4)", "gut abgestimmt (5)"]
+
+  - id: verdeutlichung_lerninhalte
+    type: likert
+    text: "Wurden Ihnen durch das Praktikum LV-Inhalte verdeutlicht?"
+    labels: ["wenig (1)", "(2)", "(3)", "(4)", "erheblich (5)"]
