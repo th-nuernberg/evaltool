@@ -201,8 +201,15 @@ button.danger:hover { background: #8f1d17; }
 
 .linkbox { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
 .linkbox input { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.9rem; }
+.qr-block { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; text-align: center; }
 .qr { background: #fff; padding: 0.5rem; border: 1px solid var(--line); border-radius: 10px; display: inline-block; }
-.qr img { display: block; width: 240px; height: 240px; }
+.qr img { display: block; width: 240px; height: 240px; max-width: 70vw; max-height: 70vw; }
+.qr-hint { margin: 0.4rem 0 0; }
+.qr-link {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-weight: 600; font-size: 1.05rem; color: var(--brand);
+  word-break: break-all; line-height: 1.35;
+}
 
 .notice { padding: 0.7rem 0.9rem; border-radius: 8px; background: var(--brand-soft); color: var(--brand-dark); font-size: 0.9rem; }
 .notice.warn { background: #fdf6ef; color: var(--warn); }
@@ -218,3 +225,28 @@ footer.app { color: var(--muted); font-size: 0.8rem; text-align: center; padding
 .session-item { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; padding: 0.6rem 0; border-bottom: 1px solid var(--line); }
 .session-item:last-child { border-bottom: none; }
 .tag { font-size: 0.75rem; color: var(--muted); }
+
+/* ── Responsive: phones & narrow tablets ───────────────────────────────────── */
+@media (max-width: 560px) {
+  .wrap { padding: 1rem; }
+  .card { padding: 1.1rem 1rem; }
+  h1 { font-size: 1.4rem; }
+
+  /* Header: allow the brand + nav to wrap instead of overflowing on tiny screens. */
+  header.app .wrap { flex-wrap: wrap; gap: 0.25rem 1rem; }
+
+  /* Likert scale (student survey): stack the options full-width so the ordered
+     scale stays legible top-to-bottom and offers comfortable touch targets,
+     instead of wrapping into an ambiguous 2–3 row grid. */
+  .likert { flex-direction: column; gap: 0.4rem; }
+  .likert label {
+    flex: 1 1 auto; text-align: left;
+    padding: 0.7rem 0.85rem; font-size: 0.92rem;
+  }
+
+  /* Full-width primary action is easier to tap on a phone. */
+  #submit-btn { width: 100%; justify-content: center; }
+
+  /* Keep the participation link readable when projected/opened narrow. */
+  .qr-link { font-size: 0.95rem; }
+}
