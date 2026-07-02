@@ -228,6 +228,8 @@
     const link = `${window.location.origin}${BASE}/eval/${current.sessionId}`;
     $('c-link').value = link;
     $('open-eval').href = link;
+    $('c-qr-link').textContent = link;
+    $('c-qr-link').href = link;
     updateCount();
     setCollectStatus('Verbinde …');
     try {
