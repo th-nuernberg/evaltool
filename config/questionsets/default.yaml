@@ -55,21 +55,21 @@ questions:
     type: likert
     text: Das Tempo der Lehrveranstaltung ist für mich angemessen.
     labels:
-      - trifft gar nicht zu
-      - trifft eher nicht zu
-      - teils/teils
-      - trifft eher zu
-      - trifft voll zu
+      - zu schnell
+      - teilweise zu schnell
+      - angemessen
+      - teilweise zu langsam
+      - zu langsam
 
   - id: workload
     type: likert
     text: Der Arbeitsaufwand für diese Lehrveranstaltung ist angemessen.
     labels:
-      - trifft gar nicht zu
-      - trifft eher nicht zu
-      - teils/teils
-      - trifft eher zu
-      - trifft voll zu
+      - zu viel
+      - etwas viel
+      - angemessen
+      - zu wenig
+      - viel zu wenig
 
   - id: material
     type: likert
